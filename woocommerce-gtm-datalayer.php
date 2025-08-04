@@ -19,6 +19,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Declare compatibility with WooCommerce High-Performance Order Storage (HPOS).
+ */
+add_action( 'before_woocommerce_init', function() {
+    if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+        \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
+    }
+} );
+
+/**
  * Main plugin class.
  *
  * Checks for WooCommerce dependency and initializes all hooks.
