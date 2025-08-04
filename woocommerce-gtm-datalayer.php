@@ -114,14 +114,8 @@ final class WC_GTM_DataLayer {
             // Hook for purchase event on the thank you page
             add_action( 'woocommerce_thankyou', [ $this, 'track_purchase' ], 10, 1 );
 
-            // Add an empty script to attach our data layer to
-            add_action('wp_enqueue_scripts', function() {
-                wp_register_script('wc-gtm-datalayer-helper', false, [], null, true);
-                wp_enqueue_script('wc-gtm-datalayer-helper');
-            });
-
-            // Output the data layer script
-            add_action( 'wp_print_footer_scripts', [ $this, 'print_data_layer_script' ], 20 );
+            // Output the data layer script in the footer
+            add_action( 'wp_footer', [ $this, 'print_data_layer_script' ], 20 );
         }
     }
 
@@ -511,21 +505,20 @@ final class WC_GTM_DataLayer {
     }
 
     /**
-     * Prints the data layer script in the footer.
-     * Uses wp_add_inline_script for safety and compatibility.
+     * Prints the data layer script directly in the site footer.
      */
     public function print_data_layer_script() {
         if ( empty( $this->data_layer ) ) {
             return;
         }
 
-        $script = '';
-        foreach( $this->data_layer as $data ) {
-             $script .= "window.dataLayer.push(" . wp_json_encode( $data ) . ");\n";
+        $script_content = '';
+        foreach ( $this->data_layer as $data ) {
+            $script_content .= "window.dataLayer.push(" . wp_json_encode( $data ) . ");\n";
         }
 
-        if ( ! empty( $script ) ) {
-            wp_add_inline_script( 'wc-gtm-datalayer-helper', $script, 'before' );
+        if ( ! empty( $script_content ) ) {
+            echo '<script type="text/javascript">' . "\n" . $script_content . '</script>' . "\n";
         }
     }
 }
